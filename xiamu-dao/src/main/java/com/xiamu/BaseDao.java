@@ -1,11 +1,17 @@
-package com.xiamu.dao;
+package com.xiamu;
 
-import com.sun.tools.corba.se.idl.constExpr.Times;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.xiamu.constants.SystemConst;
+import com.xiamu.entity.tables.pojos.User;
+import com.xiamu.util.Times;
+import org.apache.commons.collections.CollectionUtils;
 import org.jooq.DSLContext;
 import org.jooq.Table;
 import org.jooq.TableRecord;
 import org.jooq.UpdatableRecord;
 import org.jooq.impl.UpdatableRecordImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +25,7 @@ import java.util.stream.IntStream;
  * @date: 2017/3/11
  * @since JDK 1.8
  */
-public abstract class BaseDao<R extends UpdatableRecordImpl> {
+public abstract class BaseDao<R extends UpdatableRecordImpl> implements SystemConst {
 
     @Autowired
     protected DSLContext dsl;
@@ -39,6 +45,7 @@ public abstract class BaseDao<R extends UpdatableRecordImpl> {
     public R newRecord(Object object) {
         return dsl.newRecord(table(), object);
     }
+
     public R get(long id) {
         return dsl.selectFrom(table()).where(" id=? ", id).fetchAny();
     }
@@ -81,17 +88,7 @@ public abstract class BaseDao<R extends UpdatableRecordImpl> {
         return dsl.selectFrom(table()).where(" del_flag=? ", NOT_DEL).fetch();
     }
 
-    /**
-     * Description:查所有,包括删除状态的
-     *
-     * @author haoyuan.yang
-     * @version 1.0
-     * @date: 2017/3/3 17:12
-     * @since JDK 1.8
-     */
-    public List<R> findAllRecords() {
-        return dsl.selectFrom(table()).fetch();
-    }
+
 
     public R insert(R record) {
         record.from(ImmutableMap.of(FIELD_CREATE_TIME, Times.nowUnixTime()), FIELD_CREATE_TIME);
