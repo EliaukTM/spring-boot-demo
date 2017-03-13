@@ -9,6 +9,28 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <env.id>dev</env.id>
+                <active.environment>dev</active.environment>
+            </properties>
+        </profile>
+        <profile>
+            <id>online</id>
+            <properties>
+                <env.id>online</env.id>
+                <active.environment>online</active.environment>
+            </properties>
+        </profile>
+    </profiles>
+
+
     <artifactId>xiamu-api</artifactId>
     <dependencies>
         <dependency>

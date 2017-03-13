@@ -3,7 +3,6 @@ package com.xiamu;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.xiamu.constants.SystemConst;
-import com.xiamu.entity.tables.pojos.User;
 import com.xiamu.util.Times;
 import org.apache.commons.collections.CollectionUtils;
 import org.jooq.DSLContext;
