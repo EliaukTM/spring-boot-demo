@@ -17,13 +17,13 @@ public class JOOQGenerator extends JavaGenerator {
 
 
     private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    private static final String JDBC_URL = "jdbc:mysql://bdm264098224.my3w.com:3306";
-    private static final String JDBC_USERNAME = "bdm264098224";
-    private static final String JDBC_PASSWORD = "haymai163";
+    private static final String JDBC_URL = "jdbc:mysql://localhost:3306";
+    private static final String JDBC_USERNAME = "root";
+    private static final String JDBC_PASSWORD = "yujiahui123";
 
     private static final String JOOQ_DATABASE_NAME = "org.jooq.util.jdbc.JDBCDatabase";
 
-    private static final String GENERATOR_PATH = "core/src/main/java";
+    private static final String GENERATOR_PATH = "xiamu-core/src/main/java";
 
 
     /**
@@ -87,7 +87,7 @@ public class JOOQGenerator extends JavaGenerator {
     }
 
     private static void generate() throws Exception {
-        genTables("bdm264098224_db", "com.xiamu.entity", ".*", "");
+        genTables("yjh", "com.xiamu.entity", ".*", "");
     }
 
     public static void main(String[] args) throws Exception {

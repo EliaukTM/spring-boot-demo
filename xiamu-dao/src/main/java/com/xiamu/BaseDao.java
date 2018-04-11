@@ -1,20 +1,21 @@
 package com.xiamu;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.xiamu.constants.SystemConst;
-import com.xiamu.util.Times;
-import org.apache.commons.collections.CollectionUtils;
-import org.jooq.DSLContext;
-import org.jooq.Table;
-import org.jooq.TableRecord;
-import org.jooq.UpdatableRecord;
-import org.jooq.impl.UpdatableRecordImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.jooq.DSLContext;
+import org.jooq.Table;
+import org.jooq.UpdatableRecord;
+import org.jooq.impl.UpdatableRecordImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.xiamu.constants.SystemConst;
+import com.xiamu.util.Times;
 
 /**
  * Description:
@@ -26,15 +27,22 @@ import java.util.stream.IntStream;
  */
 public abstract class BaseDao<R extends UpdatableRecordImpl> implements SystemConst {
 
+
     @Autowired
     protected DSLContext dsl;
 
-    private static final String FIELD_CREATE_TIME = "create_time";
-    private static final String FIELD_DEL_FLAG = "del_flag";
     private static final String FIELD_ID = "id";
+
+    private static final String FIELD_CREATE_TIME = "create_time";
+
+    private static final String FIELD_DEL_FLAG = "del_flag";
 
     private static final Map<String, Byte> DEL_MAPPER = ImmutableMap.of(FIELD_DEL_FLAG, DEL);
 
+    /**
+     * Description:table
+     * @return table
+     */
     public abstract Table<R> table();
 
     public R newRecord() {
@@ -47,14 +55,6 @@ public abstract class BaseDao<R extends UpdatableRecordImpl> implements SystemCo
 
     public R get(long id) {
         return dsl.selectFrom(table()).where(" id=? ", id).fetchAny();
-    }
-
-    public R getValid(long id) {
-        return dsl.selectFrom(table()).where(" id=? and del_flag=? ", id, NOT_DEL).fetchAny();
-    }
-
-    public R getLastValid() {
-        return dsl.selectFrom(table()).where(" del_flag= ? ", NOT_DEL).orderBy(table().field("id").desc()).fetchAny();
     }
 
     public List<R> get(Collection<Long> ids) {
@@ -70,34 +70,23 @@ public abstract class BaseDao<R extends UpdatableRecordImpl> implements SystemCo
         return dsl.selectFrom(table()).where(sql.toString(), ids.toArray()).fetch();
     }
 
-    public List<R> getValid(Collection<Long> ids) {
-
-        if (CollectionUtils.isEmpty(ids)) {
-            return ImmutableList.of();
-        }
-
-        return dsl.selectFrom(table())
-                .where(" del_flag = 0 and id in (" + IntStream.range(0, ids.size())
-                        .mapToObj(i -> "?")
-                        .reduce((s1, s2) -> s1 + "," + s2)
-                        .orElse("") + ")", ids.toArray()).fetch();
-    }
-
     public List<R> findAllValid() {
         return dsl.selectFrom(table()).where(" del_flag=? ", NOT_DEL).fetch();
-    }
-
-
-
-    public R insert(R record) {
-        record.from(ImmutableMap.of(FIELD_CREATE_TIME, Times.nowUnixTime()), FIELD_CREATE_TIME);
-        record.insert();
-        return record;
     }
 
     public R update(R record) {
         record.store();
         return record;
+    }
+
+    public void insert(R record) {
+        record.from(ImmutableMap.of(FIELD_CREATE_TIME, Times.nowUnixTime()), FIELD_CREATE_TIME);
+        dsl.batchInsert(record).execute();
+    }
+
+    public void delete(R record) {
+        record.from(DEL_MAPPER, FIELD_DEL_FLAG);
+        record.store();
     }
 
     /**
@@ -106,40 +95,19 @@ public abstract class BaseDao<R extends UpdatableRecordImpl> implements SystemCo
      * @param record
      * @return
      */
-    public R store(R record) {
-
+    public void store(R record) {
         Long id = record.getValue(FIELD_ID, Long.class);
         if (id == null || id == 0) {
-            return insert(record);
-        } else {
-            return update(record);
+            dsl.batchInsert(record).execute();
         }
-    }
-
-    public void delete(R record) {
-        record.from(DEL_MAPPER, FIELD_DEL_FLAG);
-        record.store();
-    }
-
-    public void delete(long id) {
-        R record = get(id);
-        delete(record);
-    }
-
-    public void batchInsert(List<? extends TableRecord<?>> records) {
-        records.parallelStream().forEach(tableRecord -> tableRecord.from(
-                ImmutableMap.of(FIELD_CREATE_TIME, Times.nowUnixTime()), FIELD_CREATE_TIME));
-        dsl.batchInsert(records).execute();
+        else {
+            update(record);
+        }
     }
 
     public void batchUpdate(List<? extends UpdatableRecord<?>> records) {
 
         dsl.batchUpdate(records).execute();
 
-    }
-
-    public void batchDelete(List<? extends UpdatableRecord<?>> records) {
-        records.parallelStream().forEach(tableRecord -> tableRecord.from(DEL_MAPPER, FIELD_DEL_FLAG));
-        dsl.batchUpdate(records).execute();
     }
 }

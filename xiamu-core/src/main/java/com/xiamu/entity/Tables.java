@@ -4,13 +4,13 @@
 package com.xiamu.entity;
 
 
-import com.xiamu.entity.tables.User;
+import com.xiamu.entity.tables.Recommend;
 
 import javax.annotation.Generated;
 
 
 /**
- * Convenience access to all tables in bdm264098224_db
+ * Convenience access to all tables in yjh
  */
 @Generated(
 	value = {
@@ -23,7 +23,7 @@ import javax.annotation.Generated;
 public class Tables {
 
 	/**
-	 * The table bdm264098224_db.user
+	 * The table yjh.recommend
 	 */
-	public static final User USER = com.xiamu.entity.tables.User.USER;
+	public static final Recommend RECOMMEND = com.xiamu.entity.tables.Recommend.RECOMMEND;
 }
